@@ -1,14 +1,19 @@
 package com.amodi.socialnetnewsfeed;
 
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 import com.amodi.socialnetnewsfeed.adapter.FeedListAdapter;
+import com.amodi.socialnetnewsfeed.adapter.SpinnerAdapter;
 import com.amodi.socialnetnewsfeed.app.AppController;
 import com.amodi.socialnetnewsfeed.data.FeedItem;
 import com.android.volley.Cache;
@@ -20,18 +25,20 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements ActionBar.OnNavigationListener {
 
   private static final String TAG = MainActivity.class.getSimpleName();
   private ListView _listView;
   private FeedListAdapter _feedListAdapter;
   private List<FeedItem> _feedItems;
   private String URL_FEED = "http://api.androidhive.info/feed/feed.json";
+  private ArrayList<String> _actionBarItems;
 
 
   @SuppressLint("NewApi")
@@ -44,9 +51,11 @@ public class MainActivity extends Activity {
     _feedItems = new ArrayList<FeedItem>();
     _feedListAdapter = new FeedListAdapter(this, _feedItems);
     _listView.setAdapter(_feedListAdapter);
+    ActionBar actionBar = getActionBar();
 
-    getActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#555555")));
-    getActionBar().setIcon(new ColorDrawable(getResources().getColor(android.R.color.transparent)));
+    actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#CD1C27")));
+    actionBar.setIcon(new ColorDrawable(getResources().getColor(android.R.color.transparent)));
+
 
     Cache cache = AppController.getInstance().getRequestQueue().getCache();
     Cache.Entry entry = cache.get(URL_FEED);
@@ -78,6 +87,19 @@ public class MainActivity extends Activity {
       });
       AppController.getInstance().addToRequestQueue(jsonReq);
     }
+
+    // action bar stuff
+    actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+    _actionBarItems = new ArrayList<String>();
+    _actionBarItems.add("Item1");
+    _actionBarItems.add("Item2");
+    _actionBarItems.add("Item3");
+
+
+    actionBar.setListNavigationCallbacks(new SpinnerAdapter(this, _actionBarItems), this);
+
+
+
   }
 
   private void parseJsonFeed(JSONObject response) {
@@ -115,6 +137,13 @@ public class MainActivity extends Activity {
       if (id == R.id.action_settings) {
           return true;
       }
+      
       return super.onOptionsItemSelected(item);
+  }
+
+  @Override
+  public boolean onNavigationItemSelected(int i, long l) {
+    Toast.makeText(getBaseContext(), "You have selected " + i, Toast.LENGTH_SHORT).show();
+    return false;
   }
 }
